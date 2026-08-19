@@ -190,158 +190,11 @@ if st.session_state.first_start:
     st.stop()
 
 # ============================================
-# ОСНОВНОЙ ИНТЕРФЕЙС
+# ОСНОВНОЙ ИНТЕРФЕЙС (ЧАТ)
 # ============================================
 if "current_session" not in st.session_state:
     st.session_state.current_session = create_session("⚡ Свободный")
     st.session_state.category = "⚡ Свободный"
-
-st.markdown("""
-<style>
-    @keyframes gradient {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
-    }
-    .stApp {
-        background: linear-gradient(135deg, #b2f5ea, #d8b4fe, #98ff98, #c084fc);
-        background-size: 400% 400%;
-        animation: gradient 15s ease infinite;
-        color: #1a1a2e;
-    }
-
-    .stTextArea>div>textarea {
-        background: #ffffff !important;
-        color: #1a1a2e !important;
-        border: 2px solid #6e44ff !important;
-        border-radius: 12px;
-        padding: 12px 16px;
-        font-size: 1rem;
-        box-shadow: 0 0 0 2px rgba(110,68,255,0.1);
-        transition: all 0.3s ease;
-    }
-    .stTextArea>div>textarea:focus {
-        border-color: #a855f7;
-        box-shadow: 0 0 0 4px rgba(168,85,247,0.3);
-        background: #ffffff !important;
-    }
-
-    .css-1d391kg {
-        background: rgba(255, 255, 255, 0.25) !important;
-        backdrop-filter: blur(20px);
-        border-right: 1px solid rgba(255,255,255,0.3);
-    }
-    .css-1d391kg .stSelectbox label,
-    .css-1d391kg .stMultiselect label,
-    .css-1d391kg .stMarkdown,
-    .css-1d391kg .stText,
-    .css-1d391kg .stCaption {
-        color: #1a1a2e !important;
-    }
-    .css-1d391kg .stSelectbox > div,
-    .css-1d391kg .stMultiselect > div {
-        background: rgba(255,255,255,0.5) !important;
-        color: #1a1a2e !important;
-    }
-
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-    .logo {
-        position: fixed;
-        bottom: 30px;
-        right: 30px;
-        width: 80px;
-        height: 80px;
-        z-index: 100;
-        opacity: 0.6;
-        pointer-events: none;
-        animation: spin 12s linear infinite;
-        filter: drop-shadow(0 0 10px rgba(0,0,0,0.2));
-    }
-    .logo svg {
-        width: 100%;
-        height: 100%;
-    }
-
-    .message-user {
-        background: rgba(110, 68, 255, 0.15);
-        border-radius: 16px 16px 4px 16px;
-        padding: 12px 18px;
-        margin: 8px 0;
-        border-left: 3px solid #6e44ff;
-        align-self: flex-end;
-        max-width: 80%;
-    }
-    .message-assistant {
-        background: rgba(255, 255, 255, 0.3);
-        border-radius: 16px 16px 16px 4px;
-        padding: 12px 18px;
-        margin: 8px 0;
-        border-left: 3px solid #a855f7;
-        align-self: flex-start;
-        max-width: 80%;
-    }
-
-    .stButton > button {
-        background: linear-gradient(135deg, #6e44ff, #a855f7) !important;
-        color: white !important;
-        border: none !important;
-        border-radius: 12px !important;
-        font-weight: bold !important;
-        transition: all 0.3s ease !important;
-        box-shadow: 0 4px 20px rgba(110, 68, 255, 0.3) !important;
-    }
-    .stButton > button:hover {
-        transform: scale(1.02) !important;
-        box-shadow: 0 6px 30px rgba(110, 68, 255, 0.6) !important;
-    }
-
-    .session-item {
-        background: rgba(255,255,255,0.15);
-        border-radius: 10px;
-        padding: 8px 12px;
-        margin: 4px 0;
-        transition: all 0.3s ease;
-        border: 1px solid rgba(255,255,255,0.1);
-        color: #1a1a2e;
-        font-size: 0.9rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    .session-item:hover {
-        background: rgba(255,255,255,0.3);
-        border-color: rgba(110,68,255,0.3);
-    }
-    .session-active {
-        background: rgba(110,68,255,0.2);
-        border-color: #6e44ff;
-        border-left: 3px solid #6e44ff;
-    }
-</style>
-""", unsafe_allow_html=True)
-
-# ---------- ЛОГОТИП ----------
-st.markdown("""
-<div class="logo">
-    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="50" cy="50" r="45" fill="#2d1b69" stroke="#a855f7" stroke-width="2"/>
-        <circle cx="50" cy="50" r="30" fill="#1a0a2e" stroke="#6e44ff" stroke-width="2"/>
-        <circle cx="50" cy="50" r="15" fill="#c084fc" opacity="0.8"/>
-        <circle cx="50" cy="50" r="4" fill="#f0f2f6"/>
-        <line x1="50" y1="5" x2="50" y2="20" stroke="#a855f7" stroke-width="1.5" stroke-opacity="0.4"/>
-        <line x1="95" y1="50" x2="80" y2="50" stroke="#a855f7" stroke-width="1.5" stroke-opacity="0.4"/>
-        <line x1="50" y1="95" x2="50" y2="80" stroke="#a855f7" stroke-width="1.5" stroke-opacity="0.4"/>
-        <line x1="5" y1="50" x2="20" y2="50" stroke="#a855f7" stroke-width="1.5" stroke-opacity="0.4"/>
-        <line x1="82" y1="18" x2="72" y2="28" stroke="#6e44ff" stroke-width="1.5" stroke-opacity="0.3"/>
-        <line x1="18" y1="82" x2="28" y2="72" stroke="#6e44ff" stroke-width="1.5" stroke-opacity="0.3"/>
-        <line x1="82" y1="82" x2="72" y2="72" stroke="#6e44ff" stroke-width="1.5" stroke-opacity="0.3"/>
-        <line x1="18" y1="18" x2="28" y2="28" stroke="#6e44ff" stroke-width="1.5" stroke-opacity="0.3"/>
-    </svg>
-</div>
-""", unsafe_allow_html=True)
 
 # ---------- КАТЕГОРИИ ----------
 CATEGORIES = {
@@ -515,38 +368,222 @@ async def ensemble_query(prompt, category, selected_models):
     except Exception as e:
         return combined, f"❌ Ошибка синтеза: {e}"
 
-# ---------- БОКОВАЯ ПАНЕЛЬ (с удалением) ----------
+# ============================================
+# КАСТОМНЫЙ CSS + КАЛЛИГРАФИЧЕСКАЯ ПОДПИСЬ
+# ============================================
+st.markdown("""
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
+
+@keyframes gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+.stApp {
+    background: linear-gradient(135deg, #b2f5ea, #d8b4fe, #fbc2c2, #f5e6a3);
+    background-size: 400% 400%;
+    animation: gradient 18s ease infinite;
+    color: #1a1a2e;
+}
+
+/* ЧАТ НА ВСЮ ВЫСОТУ */
+.chat-container {
+    height: calc(100vh - 220px);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    padding: 10px 0;
+    scroll-behavior: smooth;
+}
+
+/* ПОЛЕ ВВОДА */
+.stTextArea {
+    position: sticky;
+    bottom: 0;
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(10px);
+    padding: 8px 0;
+    z-index: 10;
+    border-radius: 12px;
+    margin-top: 10px;
+}
+.stTextArea>div>textarea {
+    background: #ffffff !important;
+    color: #1a1a2e !important;
+    border: 2px solid #6e44ff !important;
+    border-radius: 12px !important;
+    padding: 10px 16px !important;
+    font-size: 1rem !important;
+    box-shadow: 0 0 0 2px rgba(110,68,255,0.1) !important;
+    transition: all 0.3s ease !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+.stTextArea>div>textarea:focus {
+    border-color: #a855f7 !important;
+    box-shadow: 0 0 0 4px rgba(168,85,247,0.3) !important;
+}
+
+/* БОКОВАЯ ПАНЕЛЬ */
+.css-1d391kg {
+    background: rgba(255, 255, 255, 0.25) !important;
+    backdrop-filter: blur(20px);
+    border-right: 1px solid rgba(255,255,255,0.3);
+}
+.css-1d391kg .stSelectbox label,
+.css-1d391kg .stMultiselect label,
+.css-1d391kg .stMarkdown,
+.css-1d391kg .stText,
+.css-1d391kg .stCaption {
+    color: #1a1a2e !important;
+}
+.css-1d391kg .stSelectbox > div,
+.css-1d391kg .stMultiselect > div {
+    background: rgba(255,255,255,0.5) !important;
+    color: #1a1a2e !important;
+}
+
+/* КАЛЛИГРАФИЧЕСКАЯ ПОДПИСЬ "НИКОЛАЙ" */
+.signature {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 1000;
+    font-family: 'Great Vibes', cursive;
+    font-size: 2.2rem;
+    font-weight: 400;
+    color: #6e44ff;
+    background: linear-gradient(135deg, #6e44ff, #a855f7, #f5a3b3, #f5e6a3);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 0 20px rgba(110, 68, 255, 0.2);
+    cursor: default;
+    user-select: none;
+    transition: transform 0.3s ease, text-shadow 0.3s ease;
+    letter-spacing: 1px;
+}
+.signature:hover {
+    transform: scale(1.05);
+    text-shadow: 0 0 40px rgba(110, 68, 255, 0.5);
+}
+
+/* СООБЩЕНИЯ */
+.message-user {
+    background: rgba(110, 68, 255, 0.15);
+    border-radius: 16px 16px 4px 16px;
+    padding: 12px 18px;
+    margin: 8px 0;
+    border-left: 3px solid #6e44ff;
+    align-self: flex-end;
+    max-width: 80%;
+}
+.message-assistant {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 16px 16px 16px 4px;
+    padding: 12px 18px;
+    margin: 8px 0;
+    border-left: 3px solid #a855f7;
+    align-self: flex-start;
+    max-width: 80%;
+}
+
+/* КНОПКИ В БОКОВОЙ ПАНЕЛИ */
+.stButton > button {
+    background: linear-gradient(135deg, #6e44ff, #a855f7) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 12px !important;
+    font-weight: bold !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 20px rgba(110, 68, 255, 0.3) !important;
+}
+.stButton > button:hover {
+    transform: scale(1.02) !important;
+    box-shadow: 0 6px 30px rgba(110, 68, 255, 0.6) !important;
+}
+
+/* СЕССИИ */
+.session-item {
+    background: rgba(255,255,255,0.15);
+    border-radius: 10px;
+    padding: 8px 12px;
+    margin: 4px 0;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #1a1a2e;
+    font-size: 0.9rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.session-item:hover {
+    background: rgba(255,255,255,0.3);
+    border-color: rgba(110,68,255,0.3);
+}
+.session-active {
+    background: rgba(110,68,255,0.2);
+    border-color: #6e44ff;
+    border-left: 3px solid #6e44ff;
+}
+
+/* ИНДИКАТОР ПЕЧАТАЕТ */
+.typing-indicator {
+    display: inline-block;
+    padding: 8px 16px;
+    background: rgba(200,200,200,0.2);
+    border-radius: 20px;
+    font-size: 0.9rem;
+    color: #555;
+    animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+    0% { opacity: 0.5; }
+    50% { opacity: 1; }
+    100% { opacity: 0.5; }
+}
+
+/* СКРОЛЛБАР */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 10px; }
+::-webkit-scrollbar-thumb { background: linear-gradient(135deg, #6e44ff, #a855f7); border-radius: 10px; }
+</style>
+""", unsafe_allow_html=True)
+
+# ---------- КАЛЛИГРАФИЧЕСКАЯ ПОДПИСЬ ----------
+st.markdown("""
+<div class="signature" title="Николай">
+    ✦ Николай ✦
+</div>
+""", unsafe_allow_html=True)
+
+# ---------- БОКОВАЯ ПАНЕЛЬ ----------
 with st.sidebar:
     st.markdown("### 📂 Чаты")
     
     sessions = get_sessions()
-    # Если нет чатов, создаём новый
     if not sessions:
         new_id = create_session("⚡ Свободный")
         st.session_state.current_session = new_id
         sessions = get_sessions()
     
-    # Отображаем список чатов с кнопкой удаления
     for sess in sessions:
         sess_id, ts, cat, name = sess
         is_active = (sess_id == st.session_state.current_session)
         
         col1, col2 = st.columns([5, 1])
         with col1:
-            # Кнопка для переключения на чат (стилизованная как текст)
             if st.button(f"{'✅ ' if is_active else ''}{name}", key=f"switch_{sess_id}", use_container_width=True):
                 st.session_state.current_session = sess_id
                 st.rerun()
         with col2:
-            # Кнопка удаления чата
-            if st.button("❌", key=f"del_{sess_id}", help="Удалить чат"):
+            if st.button("❌", key=f"del_{sess_id}"):
                 delete_session(sess_id)
-                # Если удалили текущий, переключаемся на первый в списке
                 remaining = get_sessions()
                 if remaining:
                     st.session_state.current_session = remaining[0][0]
                 else:
-                    # Если чатов не осталось, создаём новый
                     new_id = create_session("⚡ Свободный")
                     st.session_state.current_session = new_id
                 st.rerun()
@@ -565,15 +602,18 @@ with st.sidebar:
     
     st.divider()
     
-    # Настройки моделей
+    # ---------- НАСТРОЙКИ МОДЕЛЕЙ (динамический ключ) ----------
     st.markdown("### ⚙️ Модели")
+    
     default_models = RECOMMENDED.get(category, list(ALL_MODELS.keys()))
+    
     selected = st.multiselect(
         "Выбери модели (минимум 2):",
         options=list(ALL_MODELS.keys()),
         default=default_models,
-        key="selected_models"
+        key=f"model_selector_{category}"  # <-- КЛЮЧ ЗАВИСИТ ОТ КАТЕГОРИИ
     )
+    
     st.caption("Модели с ошибками будут автоматически пропущены.")
     st.caption(f"🔹 OpenRouter: 9 моделей")
     st.caption(f"🔹 Groq: 12 моделей (14 400 запросов/день)")
@@ -581,31 +621,72 @@ with st.sidebar:
 # ---------- ОСНОВНАЯ ОБЛАСТЬ (ЧАТ) ----------
 messages = get_messages(st.session_state.current_session)
 
-# Получаем имя текущего чата
 session_info = None
 for sess in get_sessions():
     if sess[0] == st.session_state.current_session:
         session_info = sess
         break
+
 if session_info:
-    st.title(f"💬 {session_info[3]}")
+    col1, col2, col3 = st.columns([4, 1, 1])
+    with col1:
+        st.title(f"💬 {session_info[3]}")
+    with col2:
+        if st.button("✏️ Переименовать", key="rename_chat_btn"):
+            st.session_state['show_rename'] = True
+    with col3:
+        if st.button("📥 Экспорт", key="export_chat_btn"):
+            msgs = get_messages(st.session_state.current_session)
+            text = f"Чат: {session_info[3]}\n\n"
+            for role, content, ts in msgs:
+                text += f"{'Вы' if role == 'user' else 'Агент'} ({ts[:16]}):\n{content}\n\n"
+            st.download_button(
+                "Скачать .txt",
+                text,
+                file_name=f"chat_{session_info[0]}.txt",
+                mime="text/plain",
+                key="download_btn"
+            )
 
-# Отображение чата
-for role, content, ts in messages:
-    if role == "user":
-        st.markdown(f'<div class="message-user"><strong>Вы</strong><br>{content}</div>', unsafe_allow_html=True)
-    else:
-        st.markdown(f'<div class="message-assistant"><strong>Агент</strong><br>{content}</div>', unsafe_allow_html=True)
+# Диалог переименования
+if 'show_rename' in st.session_state and st.session_state['show_rename']:
+    current_name = session_info[3] if session_info else ""
+    new_name = st.text_input("Новое имя чата:", value=current_name, key="rename_input_chat")
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("✅ Сохранить", key="rename_save_chat"):
+            if new_name.strip():
+                rename_session(st.session_state.current_session, new_name.strip())
+            st.session_state['show_rename'] = False
+            st.rerun()
+    with col2:
+        if st.button("❌ Отмена", key="rename_cancel_chat"):
+            st.session_state['show_rename'] = False
+            st.rerun()
 
-# Поле ввода и кнопка отправки
+# Контейнер для сообщений
+chat_container = st.container()
+with chat_container:
+    for role, content, ts in messages:
+        if role == "user":
+            st.markdown(f'<div class="message-user"><strong>Вы</strong><br>{content}</div>', unsafe_allow_html=True)
+        else:
+            st.markdown(f'<div class="message-assistant"><strong>Агент</strong><br>{content}</div>', unsafe_allow_html=True)
+    
+    if 'typing' in st.session_state and st.session_state['typing']:
+        st.markdown('<div class="typing-indicator">✍️ Агент печатает...</div>', unsafe_allow_html=True)
+
+# Поле ввода
 with st.container():
-    user_input = st.text_area("✍️ Введите вопрос:", height=100, key="user_input", placeholder="Задайте вопрос...")
+    user_input = st.text_area("", height=60, key="user_input", placeholder="Задайте вопрос...", label_visibility="collapsed")
     col1, col2, col3 = st.columns([1, 1, 1])
     with col2:
         send_btn = st.button("🚀 Отправить", type="primary", use_container_width=True)
 
 if send_btn and user_input.strip():
     add_message(st.session_state.current_session, "user", user_input.strip())
+    st.session_state['typing'] = True
+    
     with st.spinner("Опрашиваю модели..."):
         try:
             loop = asyncio.new_event_loop()
@@ -617,4 +698,7 @@ if send_btn and user_input.strip():
             add_message(st.session_state.current_session, "assistant", final)
         except Exception as e:
             st.error(f"Ошибка: {e}")
+        finally:
+            st.session_state['typing'] = False
+    
     st.rerun()
