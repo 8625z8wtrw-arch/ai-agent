@@ -1,0 +1,146 @@
+import os
+import streamlit as st
+from dotenv import load_dotenv
+from openai import AsyncOpenAI
+
+load_dotenv()
+BASE_URL = os.getenv("FRELLMAPI_BASE")
+API_KEY = os.getenv("FRELLMAPI_KEY")
+
+# ---------- НАСТРОЙКИ СТРАНИЦЫ ----------
+st.set_page_config(page_title="🧠 Мульти-агент", layout="wide")
+
+# Кастомный CSS для красоты
+st.markdown("""
+<style>
+    .stApp { background-color: #f0f2f6; }
+    .stButton>button {
+        background-color: #4CAF50;
+        color: white;
+        font-weight: bold;
+        border-radius: 12px;
+        padding: 10px 24px;
+        transition: 0.3s;
+    }
+    .stButton>button:hover {
+        background-color: #45a049;
+        transform: scale(1.02);
+    }
+    .stSelectbox, .stTextArea { border-radius: 10px; }
+    .css-1y4p8pa { max-width: 100%; }
+</style>
+""", unsafe_allow_html=True)
+
+# ---------- КАТЕГОРИИ ----------
+CATEGORIES = {
+    "📚 Учёба": "Ты — репетитор. Объясняй просто, с примерами. Помоги решить задачу.",
+    "💻 Код": "Ты — эксперт по программированию. Дай готовый код и объясни логику.",
+    "🖼️ Фото/Дизайн": "Ты — креативный дизайнер. Дай идеи и описание для визуала.",
+    "🧘 Жизнь": "Ты — мудрый советчик. Дай практичный совет по жизни, психологии или быту.",
+    "⚡ Свободный": "Отвечай максимально полезно и развёрнуто."
+}
+
+# ---------- МОДЕЛИ ----------
+ALL_MODELS = {
+    "Gemini 2.0 Flash": "openrouter/google/gemini-2.0-flash",
+    "Llama 3.3 70B": "openrouter/meta-llama/llama-3.3-70b-instruct",
+    "Mistral Large": "openrouter/mistralai/mistral-large-latest",
+}
+SYNTHESIS_MODEL = "openrouter/google/gemini-2.0-flash"
+
+# ---------- ФУНКЦИИ ----------
+async def ask_model(client, model, prompt, system_prompt):
+    try:
+        response = await client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7,
+            max_tokens=1000
+        )
+        return model, response.choices[0].message.content
+    except Exception as e:
+        return model, f"❌ Ошибка: {e}"
+
+async def ensemble_query(prompt, category, selected_models):
+    client = AsyncOpenAI(base_url=BASE_URL, api_key=API_KEY)
+    system_prompt = CATEGORIES.get(category, CATEGORIES["⚡ Свободный"])
+    
+    tasks = []
+    for model_name, model_id in selected_models.items():
+        tasks.append(ask_model(client, model_id, prompt, system_prompt))
+    
+    results = await asyncio.gather(*tasks)
+    
+    summary = f"Вопрос: {prompt}\nКатегория: {category}\n\n"
+    for model, answer in results:
+        summary += f"--- {model} ---\n{answer}\n\n"
+    
+    synthesis_prompt = f"""
+Ты — аналитик. Проанализируй ответы разных ИИ-моделей на один вопрос.
+Выдели общее, различия и дай единый итоговый ответ, который будет наиболее полным и точным.
+{summary}
+Итоговый вывод:
+"""
+    final = await client.chat.completions.create(
+        model=SYNTHESIS_MODEL,
+        messages=[{"role": "user", "content": synthesis_prompt}],
+        temperature=0.3,
+        max_tokens=1500
+    )
+    return results, final.choices[0].message.content
+
+# ---------- ИНТЕРФЕЙС ----------
+st.title("🧠 Мульти-агентный ансамбль")
+st.markdown("Несколько моделей обрабатывают твой вопрос и выдают общий ответ (дерево решений).")
+
+# Боковая панель
+with st.sidebar:
+    st.header("⚙️ Настройки")
+    category = st.selectbox("📂 Выбери категорию:", list(CATEGORIES.keys()))
+    st.markdown("---")
+    st.subheader("🤖 Активные модели:")
+    selected_models = {}
+    for name, model_id in ALL_MODELS.items():
+        if st.checkbox(name, value=True):
+            selected_models[name] = model_id
+    st.markdown(f"**Активно моделей:** {len(selected_models)}")
+    st.markdown("---")
+    st.caption("Все модели бесплатны. Синтез выполняет Gemini Flash.")
+    st.caption("🔒 Данные не сохраняются.")
+
+# Основная область
+user_prompt = st.text_area("✍️ Введи свой вопрос:", height=150)
+
+col1, col2, col3 = st.columns([1, 2, 1])
+with col2:
+    submit = st.button("🚀 Спросить всех", type="primary", use_container_width=True)
+
+if submit and user_prompt.strip():
+    with st.spinner("Опрашиваю модели и синтезирую ответ..."):
+        try:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            results, final_answer = loop.run_until_complete(
+                ensemble_query(user_prompt, category, selected_models)
+            )
+            loop.close()
+            
+            st.subheader("📌 Итоговый ответ")
+            st.success(final_answer)
+            
+            with st.expander("🌳 Дерево решений (ответы каждой модели)", expanded=True):
+                for model, ans in results:
+                    st.markdown(f"**{model}**")
+                    st.info(ans)
+                    st.divider()
+        except Exception as e:
+            st.error(f"❌ Ошибка: {e}")
+else:
+    if submit and not user_prompt.strip():
+        st.warning("⚠️ Введи вопрос!")
+
+st.divider()
+st.caption("💡 Работает на OpenRouter + FreeLLMAPI. Все запросы обрабатываются локально.")
